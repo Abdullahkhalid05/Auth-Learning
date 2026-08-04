@@ -9,6 +9,7 @@ const AddClientForm = ({ onClientAdded }: { onClientAdded?: () => void }) => {
   const [status, setStatus] = useState("LEAD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,4 +121,130 @@ const AddClientForm = ({ onClientAdded }: { onClientAdded?: () => void }) => {
   );
 };
 
+type Client = {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  status: "LEAD" | "ACTIVE" | "INACTIVE";
+};
+type UpdateClientFormProps = {
+  onCancel?: () => void;
+  onClientUpdated?: () => void;
+  client: Client;
+};
+const UpdateClientForm = ({
+  onCancel,
+  client,
+  onClientUpdated,
+}: UpdateClientFormProps) => {
+  const [name, setName] = useState(client.name);
+  const [email, setEmail] = useState(client.email);
+  const [company, setCompany] = useState(client.company);
+  const [status, setStatus] = useState(client.status);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const res = await fetch(`/api/clients/${client.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          company,
+          status,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.error?.fieldErrors) {
+          const messages = Object.values(data.error.fieldErrors).flat();
+          setError(messages.join(", ") || "Invalid input");
+        } else {
+          setError(data.error || "Something went wrong");
+        }
+        return;
+      }
+      onClientUpdated?.();
+      onCancel?.();
+    } catch (err) {
+      setError("Failed to reach server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-xl font-semibold">Update Client</h2>
+
+        <input
+          type="text"
+          placeholder="Name"
+          className="mb-3 w-full text-amber-700 rounded border p-2"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="mb-3 w-full text-amber-700 rounded border p-2"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+        />
+
+        <input
+          type="text"
+          placeholder="Company"
+          className="mb-3 w-full text-amber-700 rounded border p-2"
+          value={company}
+          onChange={(e) => {
+            setCompany(e.target.value);
+          }}
+        />
+
+        <select
+          value={status}
+          onChange={(e) =>
+            setStatus(e.target.value as "LEAD" | "ACTIVE" | "INACTIVE")
+          }
+          className="mb-4 w-full rounded border p-2 text-amber-700"
+        >
+          <option value="LEAD">Lead</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
+        </select>
+
+        <div className="flex justify-end gap-2">
+          <button className="rounded bg-gray-800 px-4 py-2" onClick={onCancel}>
+            Cancel
+          </button>
+
+          <button
+            disabled={loading}
+            className="rounded bg-blue-600 px-4 py-2 text-white"
+            onClick={handleUpdate}
+          >
+            {loading ? "Updating..." : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export { UpdateClientForm };
 export default AddClientForm;

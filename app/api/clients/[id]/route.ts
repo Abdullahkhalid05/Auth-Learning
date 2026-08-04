@@ -1,6 +1,7 @@
 import { authConfig } from "@/lib/auth";
 import { prisma } from "@/lib/prism";
-import { clientSchema, clientSchema } from "@/lib/validations/client";
+import {  clientSchema } from "@/lib/validations/client";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -22,10 +23,17 @@ export async function DELETE(
       { status: 200 },
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Something went wrong";
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      return NextResponse.json(
+        { error: "Client not found" },
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500});
   }
 }
 

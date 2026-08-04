@@ -1,5 +1,5 @@
 "use client";
-import AddClientForm from "@/components/ClientForm";
+import AddClientForm, { UpdateClientForm } from "@/components/ClientForm";
 import { signOut } from "next-auth/react";
 import { NextResponse } from "next/server";
 import { useState } from "react";
@@ -8,7 +8,7 @@ type Client = {
   id: string;
   name: string;
   email: string;
-  company: string | null;
+  company: string;
   status: "LEAD" | "ACTIVE" | "INACTIVE";
 };
 
@@ -23,16 +23,13 @@ const DashboardPage = () => {
   const [seeClients, setSeeClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [deletingClient, setdeletingClient] = useState(false);
+  const [updatingClient, setUpdatingClient] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const handleSubmit = async () => {
     setLogOut("Loging Out");
     await signOut({ callbackUrl: "/signin" });
   };
-  const handleUpdate = async () => {
-    setLogOut("Loging Out");
-    await signOut({ callbackUrl: "/signin" });
-  };
- 
 
   const handleClients = async () => {
     setLoadingClients(true);
@@ -44,18 +41,28 @@ const DashboardPage = () => {
     setSeeClients(clients);
     setdeletingClient(false);
   };
-   const handleDelete = async (req : String) => {
+  const handleUpdate = async (req: Client) => {
+    setUpdatingClient(true);
+
+    handleClients();
+  };
+  const handleDelete = async (req: String) => {
     setdeletingClient(true);
-    const id = req
+    const id = req;
     const res = await fetch(`/api/clients/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
     if (res.ok) {
-      return NextResponse.json({ message: "Client deleted successfully" }, {status:200})
+      return NextResponse.json(
+        { message: "Client deleted successfully" },
+        { status: 200 },
+      );
     }
-    seeClients.filter((prev)=> {prev.id === id})
-    handleClients()
+    seeClients.filter((prev) => {
+      prev.id === id;
+    });
+    handleClients();
   };
 
   return (
@@ -88,12 +95,12 @@ const DashboardPage = () => {
         </div>
 
         <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-          <AddClientForm onClientAdded={handleClients}/>
+          <AddClientForm onClientAdded={handleClients} />
 
           <div className="w-full space-y-3">
             {seeClients.length === 0 ? (
               <p className="text-sm text-gray-500">
-                No clients loaded yet — click "See Clients" to fetch them.
+                No clients loaded yet click "See Clients" to fetch them.
               </p>
             ) : (
               seeClients.map((c) => (
@@ -114,12 +121,24 @@ const DashboardPage = () => {
                     {c.status}
                   </span>
                   <button
-                    onClick={() => handleUpdate()}
+                    onClick={() => {
+                      setSelectedClient(c);
+                      setUpdatingClient(true);
+                    }}
                     className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700"
                   >
                     Update
                   </button>
-
+                  {selectedClient && updatingClient && (
+                    <UpdateClientForm
+                      client={selectedClient}
+                      onCancel={() => {
+                        setUpdatingClient(false);
+                        setSelectedClient(null);
+                      }}
+                      onClientUpdated={handleClients}
+                    />
+                  )}
                   <button
                     onClick={() => handleDelete(c.id)}
                     className="rounded-md bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
