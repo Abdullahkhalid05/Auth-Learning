@@ -1,7 +1,6 @@
 "use client";
 import AddClientForm, { UpdateClientForm } from "@/components/ClientForm";
 import { signOut } from "next-auth/react";
-import { NextResponse } from "next/server";
 import { useState } from "react";
 
 type Client = {
@@ -10,6 +9,7 @@ type Client = {
   email: string;
   company: string;
   status: "LEAD" | "ACTIVE" | "INACTIVE";
+  createdAt: string;
 };
 
 const statusStyles: Record<Client["status"], string> = {
@@ -38,31 +38,25 @@ const DashboardPage = () => {
       headers: { "Content-Type": "application/json" },
     });
     const clients = await res.json();
-    setSeeClients(clients);
+    const sorted = [...clients].sort(
+      (a: Client, b: Client) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    setSeeClients(sorted);
+    setLoadingClients(false);
     setdeletingClient(false);
   };
-  const handleUpdate = async (req: Client) => {
-    setUpdatingClient(true);
 
-    handleClients();
-  };
-  const handleDelete = async (req: String) => {
+  const handleDelete = async (id: string) => {
     setdeletingClient(true);
-    const id = req;
     const res = await fetch(`/api/clients/${id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
     if (res.ok) {
-      return NextResponse.json(
-        { message: "Client deleted successfully" },
-        { status: 200 },
-      );
+      setSeeClients((prev) => prev.filter((c) => c.id !== id));
     }
-    seeClients.filter((prev) => {
-      prev.id === id;
-    });
-    handleClients();
+    setdeletingClient(false);
   };
 
   return (
@@ -129,18 +123,9 @@ const DashboardPage = () => {
                   >
                     Update
                   </button>
-                  {selectedClient && updatingClient && (
-                    <UpdateClientForm
-                      client={selectedClient}
-                      onCancel={() => {
-                        setUpdatingClient(false);
-                        setSelectedClient(null);
-                      }}
-                      onClientUpdated={handleClients}
-                    />
-                  )}
                   <button
                     onClick={() => handleDelete(c.id)}
+                    disabled={deletingClient}
                     className="rounded-md bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
                   >
                     Delete
@@ -151,6 +136,17 @@ const DashboardPage = () => {
           </div>
         </div>
       </section>
+
+      {selectedClient && updatingClient && (
+        <UpdateClientForm
+          client={selectedClient}
+          onCancel={() => {
+            setUpdatingClient(false);
+            setSelectedClient(null);
+          }}
+          onClientUpdated={handleClients}
+        />
+      )}
     </main>
   );
 };

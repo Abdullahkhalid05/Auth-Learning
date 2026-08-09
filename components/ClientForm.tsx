@@ -9,7 +9,6 @@ const AddClientForm = ({ onClientAdded }: { onClientAdded?: () => void }) => {
   const [status, setStatus] = useState("LEAD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,11 +127,13 @@ type Client = {
   company: string;
   status: "LEAD" | "ACTIVE" | "INACTIVE";
 };
+
 type UpdateClientFormProps = {
   onCancel?: () => void;
   onClientUpdated?: () => void;
   client: Client;
 };
+
 const UpdateClientForm = ({
   onCancel,
   client,
@@ -160,10 +161,10 @@ const UpdateClientForm = ({
           status,
         }),
       });
-
+      
       const data = await res.json();
-
-      if (!res.ok) {
+      
+      if (!data) {
         if (data.error?.fieldErrors) {
           const messages = Object.values(data.error.fieldErrors).flat();
           setError(messages.join(", ") || "Invalid input");

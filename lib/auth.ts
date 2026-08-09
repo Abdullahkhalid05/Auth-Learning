@@ -27,8 +27,8 @@ export const authConfig: NextAuthOptions = {
           return null;
         }
 
-        // const isPasswordValid = await bcrypt.compare(password, user.password);
-        const isPasswordValid = user.password;
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        // const isPasswordValid = user.password;
 
         if (!isPasswordValid) {
           return null;

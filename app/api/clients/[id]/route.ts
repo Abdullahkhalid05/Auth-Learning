@@ -68,7 +68,7 @@ export async function PATCH(
     return NextResponse.json({ message: "Client not found" }, { status: 404 });
   }
 
-  await prisma.client.update({
+ const update = await prisma.client.update({
     where: { id },
     data: {
       name,
@@ -77,4 +77,5 @@ export async function PATCH(
       status,
     },
   });
+  return NextResponse.json(update, { status: 200 });
 }

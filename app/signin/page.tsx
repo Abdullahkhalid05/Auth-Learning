@@ -11,7 +11,6 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -25,7 +24,7 @@ const Page = () => {
     })
 
     if (result?.ok) {
-    window.location.href = "/dashboard";  // ← changed from router.push("/dashboard")
+    window.location.href = "/dashboard"; 
   } else {
       setError("fuck you");
       setLoading(false);
