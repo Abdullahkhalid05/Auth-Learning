@@ -26,7 +26,7 @@ const Page = () => {
     if (result?.ok) {
     window.location.href = "/dashboard"; 
   } else {
-      setError("fuck you");
+      setError("Invaild data");
       setLoading(false);
     }
   };
