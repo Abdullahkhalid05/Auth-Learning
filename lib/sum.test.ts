@@ -11,7 +11,7 @@ vi.mock("@/lib/prism",()=>({
     prisma:{
         client:{
            create: vi.fn()
-        }
+        } 
     }
 }))
 describe("POST /api/client",()=>{

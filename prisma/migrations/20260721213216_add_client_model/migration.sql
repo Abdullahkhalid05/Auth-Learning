@@ -1,7 +1,6 @@
--- CreateEnum
+
 CREATE TYPE "Status" AS ENUM ('LEAD', 'ACTIVE', 'INACTIVE');
 
--- CreateTable
 CREATE TABLE "Client" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -15,5 +14,4 @@ CREATE TABLE "Client" (
     CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
 );
 
--- AddForeignKey
 ALTER TABLE "Client" ADD CONSTRAINT "Client_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,0 +1,8 @@
+class bankacc{
+    String cardholder;
+    int bankbalance;
+
+}
+public static void main(String[] args){
+ ban
+}
