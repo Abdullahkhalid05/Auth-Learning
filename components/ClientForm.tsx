@@ -63,7 +63,7 @@ const AddClientForm = ({ onClientAdded }: { onClientAdded?: () => void }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded text-gray-900 border border-gray-300 p-2 text-sm"
-          placeholder="Sarah Khan"
+          placeholder="Soban Tariq"
         />
       </div>
 
@@ -75,7 +75,7 @@ const AddClientForm = ({ onClientAdded }: { onClientAdded?: () => void }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full text-gray-900 rounded border border-gray-300 p-2 text-sm"
-          placeholder="sarah@khantextiles.com"
+          placeholder="sobantariq@khantextiles.com"
         />
       </div>
 
