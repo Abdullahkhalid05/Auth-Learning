@@ -10,10 +10,10 @@ export default async function DashboardLayout({
   const session = await getServerSession(authConfig);
 
   return (
-    <div className="flex h-screen gap-3 p-3">
+    <div className="flex h-dvh flex-col gap-3 p-3 md:flex-row">
       <Sidebar />
-      <div className="flex flex-1 flex-col gap-3 overflow-hidden">
-        <header className="glass px-6 py-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-3 overflow-hidden">
+        <header className="glass px-4 py-3 md:px-6 md:py-4">
           <h2 className="text-sm font-medium text-muted-foreground">
             Welcome back, {session?.user?.name ?? session?.user?.email}
           </h2>
