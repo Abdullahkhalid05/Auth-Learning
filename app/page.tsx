@@ -1,65 +1,101 @@
-import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { Users, FolderOpen, CheckSquare } from "lucide-react";
+import { authConfig } from "@/lib/auth";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default function Home() {
+const features = [
+  {
+    icon: Users,
+    color: "text-violet-500",
+    title: "Clients",
+    text: "Keep every client in one place, with their company and where they stand, from lead to active.",
+  },
+  {
+    icon: FolderOpen,
+    color: "text-orange-500",
+    title: "Projects",
+    text: "Attach projects to a client, set a budget, and track whether each one is active, on hold, or done.",
+  },
+  {
+    icon: CheckSquare,
+    color: "text-green-500",
+    title: "Tasks",
+    text: "Break a project into tasks and move them from to do to done as the work gets finished.",
+  },
+];
+
+export default async function Home() {
+  const session = await getServerSession(authConfig);
+  if (session?.user) redirect("/dashboard");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-screen flex-col">
+      <header className="glass mx-4 mt-4 flex items-center justify-between self-center px-6 py-3 sm:w-full sm:max-w-5xl">
+        <span className="text-lg font-bold">Client Dashboard</span>
+        <nav className="flex items-center gap-3">
+          <Link
+            href="/signin"
+            className="cursor-pointer text-sm font-medium hover:underline"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/signup"
+            className="btn-skeuo cursor-pointer rounded-md px-4 py-2 text-sm font-medium"
+          >
+            Get started
+          </Link>
+        </nav>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4">
+        <section className="mx-auto max-w-3xl py-24 text-center">
+          <span className="glass inline-block px-4 py-1 text-xs font-medium text-muted-foreground">
+            Built for freelancers
+          </span>
+          <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-6xl">
+            Manage your clients, projects, and tasks in one place
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-6 text-lg text-muted-foreground">
+            A simple private workspace where every client, project, and task is
+            yours alone. Sign up, add a client, and start tracking the work.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href="/signup"
+              className="btn-skeuo cursor-pointer rounded-md px-8 py-3 font-medium"
+            >
+              Create an account
+            </Link>
+            <Link
+              href="/signin"
+              className="neu-raised cursor-pointer rounded-md px-8 py-3 font-medium"
+            >
+              Sign in
+            </Link>
+          </div>
+        </section>
+
+        <section className="grid gap-4 pb-16 sm:grid-cols-3">
+          {features.map((f) => (
+            <Card key={f.title} className="glass border-0">
+              <CardContent className="space-y-3 p-6">
+                <div className="neu-raised inline-flex rounded-md p-3">
+                  <f.icon size={20} className={f.color} />
+                </div>
+                <h2 className="text-lg font-semibold">{f.title}</h2>
+                <p className="text-sm text-muted-foreground">{f.text}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </section>
       </main>
+
+      <footer className="py-8 text-center text-sm text-muted-foreground">
+        Built with Next.js, Prisma, and NextAuth
+      </footer>
     </div>
   );
 }

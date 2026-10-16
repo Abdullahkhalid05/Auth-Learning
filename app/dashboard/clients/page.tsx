@@ -1,7 +1,7 @@
 "use client";
 import AddClientForm, { UpdateClientForm } from "@/components/ClientForm";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Client = {
   id: string;
@@ -46,7 +46,9 @@ const DashboardPage = () => {
     setLoadingClients(false);
     setdeletingClient(false);
   };
-
+ useEffect(()=>{
+  handleClients();  
+ },[])
   const handleDelete = async (id: string) => {
     setdeletingClient(true);
     const res = await fetch(`/api/clients/${id}`, {
@@ -71,25 +73,6 @@ const DashboardPage = () => {
           {logOut}
         </button>
       </nav>
-
-      <button
-  onClick={async () => {
-    const res = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: "Website redesign",
-        description: "Redesign the homepage",
-        status: "ACTIVE",
-        budget: 1500,
-        clientId: "cmv27y6990002tdc0rtb41v6j",
-      }),
-    });
-    console.log(res.status, await res.json());
-  }}
->
-  Test project
-</button>
 
       <section className="p-8">
         <div className="rounded-lg bg-blue-300 p-6 shadow">
@@ -145,7 +128,7 @@ const DashboardPage = () => {
                   <button
                     onClick={() => handleDelete(c.id)}
                     disabled={deletingClient}
-                    className="rounded-md bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
+                    className="rounded-md  bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
                   >
                     Delete
                   </button>

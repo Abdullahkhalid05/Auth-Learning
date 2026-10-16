@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         clientId: clientId,
         userId: session.user.id,
       },
+      include: { client: { select: { name: true } } },
     });
 
     return NextResponse.json(
@@ -57,4 +58,23 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function GET(req : Request){
+  const session = await getServerSession(authConfig);
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const project = await prisma.project.findMany({
+    where: {
+      userId : session.user.id 
+    },
+    include:{
+      client: {select : {name : true}}
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  })
+  return NextResponse.json(project);
 }
