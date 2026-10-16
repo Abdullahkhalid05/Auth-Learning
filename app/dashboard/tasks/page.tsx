@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Trash2 } from "lucide-react"; // NEW
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,34 +42,31 @@ export default function TasksPage() {
 
   const loadData = async () => {
     setError("");
-    try{
-        const [taskReq, projectReq] = await Promise.all([
-        fetch("/api/tasks" , {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
+    try {
+      const [taskReq, projectReq] = await Promise.all([
+        fetch("/api/tasks", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         }),
-        fetch("/api/projects" , {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
+        fetch("/api/projects", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         }),
-
-        ])
-        if (!taskReq.ok || !projectReq.ok) {
-            setError("Failed to load data");
-            return;
-          }
-        const project =await projectReq.json()
-        const task =await taskReq.json()
-        setTasks(task)  
-        setProjects(project)  
-
-    }catch(err){
-         setError("Failed to reach server");
-    }finally{
-         setLoadingList(false);
+      ]);
+      if (!taskReq.ok || !projectReq.ok) {
+        setError("Failed to load data");
+        return;
+      }
+      const project = await projectReq.json();
+      const task = await taskReq.json();
+      setTasks(task);
+      setProjects(project);
+    } catch (err) {
+      setError("Failed to reach server");
+    } finally {
+      setLoadingList(false);
     }
   };
-
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,12 +94,53 @@ export default function TasksPage() {
       }
       setTasks((prev) => [data.task, ...prev]);
       setTitle("");
-      setProjectId("")
-      setStatus("ACTIVE");
+      setProjectId("");
+      setStatus("TODO");
     } catch (err) {
       setError("Failed to reach server");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    setError("");
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(
+          typeof data.error === "string"
+            ? data.error
+            : data.message || "Could not update task",
+        );
+        return;
+      }
+      setTasks((prev) => prev.map((t) => (t.id === id ? data : t)));
+    } catch (err) {
+      setError("Failed to reach server");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this task?")) return;
+    setError("");
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        setTasks((prev) => prev.filter((t) => t.id !== id));
+      } else {
+        setError("Could not delete task");
+      }
+    } catch (err) {
+      setError("Failed to reach server");
     }
   };
 
@@ -210,6 +249,28 @@ export default function TasksPage() {
                     >
                       {statusLabels[t.status]}
                     </span>
+
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={t.status}
+                        onChange={(e) =>
+                          handleStatusChange(t.id, e.target.value)
+                        }
+                        className="neu-inset cursor-pointer rounded-md px-2 py-1 text-xs"
+                        aria-label="Change status"
+                      >
+                        <option value="TODO">To do</option>
+                        <option value="IN_PROGRESS">In progress</option>
+                        <option value="DONE">Done</option>
+                      </select>
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        className="neu-raised cursor-pointer rounded-md p-2 text-red-500"
+                        aria-label="Delete task"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
